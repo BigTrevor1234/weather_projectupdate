@@ -1,0 +1,132 @@
+/* Input container and send button styling */
+
+.input-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 50px;
+}
+.input-container input {
+	width: 320px;
+	height: 50px;
+	border: none;
+	border-radius: 10px 0 0 10px;
+	padding: 0 10px;
+	outline: none;
+	box-shadow: 0 8px 32px 0 rgba(31, 31, 31, 0.37);
+	font-size: 1em;
+	margin: 0;
+}
+.input-container button {
+	height: 50px;
+	border: none;
+	background: #fff;
+	border-radius: 0 10px 10px 0;
+	cursor: pointer;
+	box-shadow: 0 8px 32px 0 rgba(31, 31, 31, 0.12);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 12px;
+	transition: background 0.2s;
+	margin: 0;
+}
+.input-container button:hover {
+	background: #e0e0e0;
+}
+
+/* Weather main icon styling */
+.weather-icon-display {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 10px;
+}
+.weather-main-icon {
+	width: 70px;
+	height: 70px;
+	object-fit: contain;
+}
+@import url("https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&display=swap");
+
+* {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+body {
+	font-family: "Barlow", sans-serif;
+	background-image: url("images/bg.jpg");
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: 70%;
+	height: 100vh;
+}
+header {
+	display: flex;
+	flex-direction: column;
+}
+header .title {
+	margin-top: 40px;
+	text-align: center;
+	text-shadow: 0 0 50px black;
+}
+header .weather-icon {
+	width: 60px;
+	margin-bottom: -20px;
+	margin-right: 20px;
+}
+
+main .info-container {
+/* Weather detail styling */
+.weather-detail {
+	margin-top: 10px;
+	font-size: 1.1em;
+	font-weight: 500;
+	color: #2a2a2a;
+	background: rgba(255,255,255,0.5);
+	border-radius: 8px;
+	padding: 8px 12px;
+	box-shadow: 0 2px 8px rgba(31,31,31,0.12);
+	text-align: center;
+}
+	background: rgba(255, 255, 255, 0.2);
+	box-shadow: 0 8px 32px 0 rgba(31, 31, 31, 0.37);
+	backdrop-filter: blur(7px);
+	-webkit-backdrop-filter: blur(7px);
+	border-radius: 20px;
+	max-width: 300px;
+	min-height: 380px;
+	position: relative;
+	margin: auto;
+	margin-top: 30px;
+	padding: 20px;
+	text-align: center;
+}
+#get-city {
+	text-align: center;
+}
+.city-name {
+	font-size: 23px;
+	margin: 20px 0;
+}
+.weather-deg {
+	font-size: 80px;
+	margin-top: 20px;
+	margin-bottom: 40px;
+}
+.weather-condition {
+	margin-bottom: 20px;
+}
+
+/* copyright */
+.copyright {
+	text-align: center;
+	margin: 15px;
+	color: rgb(202, 202, 202);
+}
+.copyright a {
+	text-decoration: none;
+
+	color: rgb(240, 240, 240);
+}

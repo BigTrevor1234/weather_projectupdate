@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Weather Forecast App</title>
+		<link rel="stylesheet" href="styles.css" />
+		<script src="script.js" defer></script>
+	</head>
+	<body>
+		<header>
+			<h1 class="title"><img class="weather-icon" src="images/weather-icon.png" alt="weather logo" />Weather Forecast App</h1>
+			<div class="input-container">
+				<input id="get-city" type="text" placeholder="Enter city here" />
+				<button id="send-btn" title="Get Weather">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path d="M2 21l21-9-21-9v7l15 2-15 2v7z" fill="#333"/></svg>
+				</button>
+			</div>
+		</header>
+		<main>
+			<div class="info-container">
+				<h3 class="city-name"></h3>
+				<p class="date-info"><span class="day"></span><span class="date"></span></p>
+				<div class="weather-icon-display"></div>
+				<h2 class="weather-deg"></h2>
+				<h3 class="weather-condition"></h3>
+				<h3 class="humidity"></h3>
+			</div>
+		</main>
+	</body>
+</html>
