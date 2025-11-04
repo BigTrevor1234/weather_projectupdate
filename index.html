@@ -1,32 +1,406 @@
 <!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Weather Forecast App</title>
-		<link rel="stylesheet" href="styles.css" />
-		<script src="script.js" defer></script>
-	</head>
-	<body>
-		<header>
-			<h1 class="title"><img class="weather-icon" src="images/weather-icon.png" alt="weather logo" />Weather Forecast App</h1>
-			<div class="input-container">
-				<input id="get-city" type="text" placeholder="Enter city here" />
-				<button id="send-btn" title="Get Weather">
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path d="M2 21l21-9-21-9v7l15 2-15 2v7z" fill="#333"/></svg>
-				</button>
-			</div>
-		</header>
-		<main>
-			<div class="info-container">
-				<h3 class="city-name"></h3>
-				<p class="date-info"><span class="day"></span><span class="date"></span></p>
-				<div class="weather-icon-display"></div>
-				<h2 class="weather-deg"></h2>
-				<h3 class="weather-condition"></h3>
-				<h3 class="humidity"></h3>
-			</div>
-		</main>
-	</body>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A simple and fast web app to get current weather forecasts for cities around the world.">
+    <title>Weather Forecast App</title>
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Configuration for Tailwind dark mode and custom font -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    
+    <!-- Embedded Styles -->
+    <style type="text/tailwindcss">
+        body {
+            /* * 1. Set the background image here using CSS.
+             * 2. Removed bg-gray-100/dark:bg-gray-900 which was covering the image.
+             * 3. Using a placeholder image for demonstration.
+            */
+            background-image: url('images/bg.jpg');
+            @apply bg-cover bg-center bg-fixed text-gray-900 dark:text-gray-100 font-sans antialiased;
+        }
+        
+        /* Visually-hidden class for accessibility */
+        .visually-hidden {
+            @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+            clip: rect(0, 0, 0, 0);
+        }
+
+        /* * 4. Made the weather card semi-transparent with a "frosted glass" effect.
+         * - Changed bg-white to bg-white/60 (60% opacity)
+         * - Added backdrop-blur-lg for the blur effect.
+         * - Added a subtle border.
+        */
+        .weather-card {
+            @apply bg-white/60 dark:bg-gray-900/60 backdrop-blur-lg border border-white/20 dark:border-gray-700/50 shadow-xl rounded-2xl p-6 md:p-8 transition-all duration-300;
+        }
+        
+        /* 5. Made input semi-transparent */
+        .search-input {
+            @apply w-full px-4 py-3 rounded-l-lg bg-white/50 dark:bg-gray-700/50 placeholder-gray-700 dark:placeholder-gray-400 border border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base text-black dark:text-white;
+        }
+        
+        .search-button {
+            @apply bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-r-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500;
+        }
+
+        /* 6. Adjusted text colors for better contrast on the blurred card */
+        .secondary-info dt {
+            @apply text-sm font-medium text-gray-700 dark:text-gray-300;
+        }
+        .secondary-info dd {
+            @apply text-lg font-semibold text-black dark:text-white;
+        }
+        
+        /* 7. Added a text-shadow utility for readability on a background image */
+        .text-shadow {
+            text-shadow: 0 2px 4px rgb(0 0 0 / 0.5);
+        }
+    </style>
+</head>
+<!-- 8. Removed the old 'background' attribute from the body tag -->
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-md mx-auto">
+        <header class="mb-6 text-center">
+            <!-- 9. Made header text white and gave it a shadow for contrast -->
+            <h1 class="text-3xl font-bold flex items-center justify-center space-x-2 text-white text-shadow">
+                <!-- Inline SVG for weather icon, changed color to white -->
+                <svg class="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.758A3.75 3.75 0 0013.5 4.5H4.5A4.5 4.5 0 000 9a5.25 5.25 0 003.75 5.25l-.375 1.5A.75.75 0 004.5 18l.375-1.5m13.5 0v-3" />
+                </svg>
+                <span>Weather Forecast</span>
+            </h1>
+        </header>
+
+        <main>
+            <!-- Search Form: Semantically correct and accessible -->
+            <form class="flex mb-6 shadow-md rounded-lg" id="search-form" role="search">
+                <label for="get-city" class="visually-hidden">Enter city name</label>
+                <input 
+                    id="get-city" 
+                    type="text" 
+                    placeholder="Enter city (e.g., London)" 
+                    class="search-input"
+                    required
+                />
+                
+                <!-- Accessible submit button -->
+                <button 
+                    id="send-btn" 
+                    type="submit" 
+                    class="search-button"
+                    aria-label="Get Weather"
+                >
+                    <!-- Icon hidden from screen readers -->
+                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true" focusable="false">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                </button>
+            </form>
+
+            <!-- 
+                Weather Info Container
+                - aria-live="polite": Announces updates to screen readers when content changes.
+                - 'hidden' class: Initially hidden, JS will show it when data is loaded.
+            -->
+            <section 
+                id="weather-container"
+                class="weather-card hidden" 
+                aria-live="polite"
+            >
+                <!-- Loading Spinner (initially shown inside card) -->
+                <div id="loading-spinner" class="text-center p-8 hidden">
+                    <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="mt-2 text-gray-500 dark:text-gray-400">Loading forecast...</p>
+                </div>
+
+                <!-- Error Message (hidden by default) -->
+                <div id="error-message" class="text-center p-8 hidden">
+                    <p class="text-red-500 font-semibold">Could not find weather data for that city. Please try again.</p>
+                </div>
+
+                <!-- Weather Data (populated by JS) -->
+                <div id="weather-data" class="hidden">
+                    <!-- City and Date -->
+                    <h3 id="city-name" class="text-3xl font-bold text-center text-black dark:text-white"></h3>
+                    <p id="date-info" class="text-center text-gray-700 dark:text-gray-300 mb-6"></p>
+
+                    <!-- Primary Weather Info -->
+                    <div class="flex flex-col items-center justify-center text-center my-6">
+                        <div id="weather-icon-display" class="text-8xl mb-4"></div>
+                        <p id="weather-deg" class="text-7xl font-light text-black dark:text-white"></p>
+                        <p id="weather-condition" class="text-2xl text-gray-700 dark:text-gray-300 capitalize"></p>
+                    </div>
+
+                    <!-- Secondary Info (Description List) -->
+                    <dl class="secondary-info grid grid-cols-2 gap-4 text-center">
+                        <div class="bg-gray-100/50 dark:bg-gray-700/50 p-4 rounded-lg">
+                            <dt>Humidity</dt>
+                            <dd id="humidity"></dd>
+                        </div>
+                        <div class="bg-gray-100/50 dark:bg-gray-700/50 p-4 rounded-lg">
+                            <dt>Wind Speed</dt>
+                            <dd id="wind-speed"></dd>
+                        </div>
+                        <div class="bg-gray-100/50 dark:bg-gray-700/50 p-4 rounded-lg">
+                            <dt>Feels Like</dt>
+                            <dd id="feels-like"></dd>
+                        </div>
+                        <div class="bg-gray-100/50 dark:bg-gray-700/50 p-4 rounded-lg">
+                            <dt>Pressure</dt>
+                            <dd id="pressure"></dd>
+                        </div>
+                    </dl>
+                </div>
+
+            </section>
+        </main>
+        
+        <!-- 10. Made footer text lighter and gave it a shadow for contrast -->
+		 <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <footer class="text-center mt-6 text-sm text-gray-200 text-shadow">
+			<font color="#000">
+				Copyright &copy; SWD Federal Polytechnic Offa | Powered by <a href="#" target="_blank" rel="noopener noreferrer" class="underline hover:text-white">Shriff </a>
+    		</font>   
+		</footer>
+    </div>
+
+    <!-- Embedded JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURATION ---
+            // !!! IMPORTANT !!!
+            // Replace this with your own free API key from https://openweathermap.org/
+            const API_KEY = '124b92a8dd9ec01ffb0dbf64bc44af3c'; 
+
+            // --- DOM Element References ---
+            const searchForm = document.getElementById('search-form');
+            const cityInput = document.getElementById('get-city');
+            
+            const weatherContainer = document.getElementById('weather-container');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const errorMessage = document.getElementById('error-message');
+            const weatherData = document.getElementById('weather-data');
+
+            // Data display elements
+            const cityNameEl = document.getElementById('city-name');
+            const dateInfoEl = document.getElementById('date-info');
+            const weatherIconEl = document.getElementById('weather-icon-display');
+            const weatherDegEl = document.getElementById('weather-deg');
+            const weatherConditionEl = document.getElementById('weather-condition');
+            const humidityEl = document.getElementById('humidity');
+            const windSpeedEl = document.getElementById('wind-speed');
+            const feelsLikeEl = document.getElementById('feels-like');
+            const pressureEl = document.getElementById('pressure');
+
+            // --- Event Listeners ---
+            searchForm.addEventListener('submit', handleSearchSubmit);
+            
+            // --- Functions ---
+            
+            /**
+             * Handles the search form submission.
+             * @param {Event} e - The submit event.
+             */
+            async function handleSearchSubmit(e) {
+                e.preventDefault(); // Stop page reload
+                const city = cityInput.value.trim();
+
+                if (city === '') {
+                    showError('Please enter a city name.');
+                    return;
+                }
+                
+                if (API_KEY === 'YOUR_API_KEY_HERE') {
+                    showError('Please add your OpenWeatherMap API key in the script.');
+                    return;
+                }
+
+                showLoading();
+                
+                try {
+                    const weather = await getWeatherData(city);
+                    updateUI(weather);
+                } catch (error) {
+                    console.error('Error fetching weather data:', error);
+                    showError(error.message);
+                }
+            }
+
+            /**
+             * Fetches weather data from the OpenWeatherMap API.
+             * @param {string} city - The city to get weather for.
+             * @returns {Promise<object>} - The weather data object.
+             */
+            async function getWeatherData(city) {
+                const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+                
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error(`City not found: ${city}`);
+                    } else {
+                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    }
+                }
+                
+                const data = await response.json();
+                return data;
+            }
+
+            /**
+             * Updates the UI with the fetched weather data.
+             * @param {object} data - The weather data from the API.
+             */
+            function updateUI(data) {
+                // Update text content
+                cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
+                weatherDegEl.textContent = `${Math.round(data.main.temp)}°C`;
+                weatherConditionEl.textContent = data.weather[0].description;
+                humidityEl.textContent = `${data.main.humidity}%`;
+                windSpeedEl.textContent = `${data.wind.speed.toFixed(1)} m/s`;
+                feelsLikeEl.textContent = `${Math.round(data.main.feels_like)}°C`;
+                pressureEl.textContent = `${data.main.pressure} hPa`;
+
+                // Update date and time
+                dateInfoEl.textContent = getFormattedDateTime(new Date(data.dt * 1000), data.timezone);
+                
+                // Update weather icon
+                weatherIconEl.innerHTML = getWeatherIcon(data.weather[0].icon);
+
+                showData();
+            }
+
+            /**
+             * Shows the loading spinner and hides other states.
+             */
+            function showLoading() {
+                weatherContainer.classList.remove('hidden');
+                loadingSpinner.classList.remove('hidden');
+                errorMessage.classList.add('hidden');
+                weatherData.classList.add('hidden');
+            }
+
+            /**
+             * Shows the error message and hides other states.
+             * @param {string} message - The error message to display (customized).
+             */
+            function showError(message) {
+                // Use a more specific error message based on the input
+                if (message.includes('City not found')) {
+                    errorMessage.firstElementChild.textContent = "Could not find that city. Please check the spelling and try again.";
+                } else if (message.includes('API key')) {
+                    errorMessage.firstElementChild.textContent = "API key is missing. Please add it to the script file.";
+                } else {
+                    errorMessage.firstElementChild.textContent = "An error occurred. Please try again later.";
+                }
+
+                weatherContainer.classList.remove('hidden');
+                loadingSpinner.classList.add('hidden');
+                errorMessage.classList.remove('hidden');
+                weatherData.classList.add('hidden');
+            }
+            
+            /**
+             * Shows the weather data and hides other states.
+             */
+            function showData() {
+                weatherContainer.classList.remove('hidden');
+                loadingSpinner.classList.add('hidden');
+                errorMessage.classList.add('hidden');
+                weatherData.classList.remove('hidden');
+            }
+
+            /**
+             * Returns an emoji or SVG icon based on the weather icon code.
+             * @param {string} iconCode - The icon code from OpenWeatherMap.
+             * @returns {string} - An emoji or inline SVG.
+             */
+            function getWeatherIcon(iconCode) {
+                // Simple emoji mapping
+                const icons = {
+                    '01d': '☀️', // clear sky day
+                    '01n': '🌙', // clear sky night
+                    '02d': '⛅️', // few clouds day
+                    '02n': '☁️', // few clouds night
+                    '03d': '☁️', // scattered clouds
+                    '03n': '☁️', // scattered clouds
+                    '04d': '☁️', // broken clouds
+                    '04n': '☁️', // broken clouds
+                    '09d': '🌧️', // shower rain
+                    '09n': '🌧️', // shower rain
+                    '10d': '🌦️', // rain day
+                    '10n': '🌧️', // rain night
+                    '11d': '⛈️', // thunderstorm
+                    '11n': '⛈️', // thunderstorm
+                    '13d': '❄️', // snow
+                    '13n': '❄️', // snow
+                    '50d': '🌫️', // mist
+                    '50n': '🌫️', // mist
+                };
+                return icons[iconCode] || '❓';
+            }
+
+            /**
+             * Formats the date and time for the city's timezone.
+             * @param {Date} date - The date object.
+             * @param {number} timezone - The timezone offset in seconds.
+             * @returns {string} - A formatted date/time string.
+             */
+            function getFormattedDateTime(date, timezone) {
+                // Options for formatting. We'll get the local time in the target timezone.
+                const options = {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZoneOffset: timezone, // OWM provides offset in seconds
+                    timeZone: 'UTC', // Base calculations on UTC then apply offset
+                    hour12: true,
+                };
+
+                // Create a formatter
+                // We calculate the local time by adjusting for the timezone offset.
+                // JS Date object timezone calculations can be tricky. A library
+                // like Luxon or date-fns is better, but for this simple case:
+                const utcTime = date.getTime();
+                const localTime = new Date(utcTime + (timezone * 1000));
+                
+                const formatter = new Intl.DateTimeFormat('en-US', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZone: 'UTC' // Treat the calculated localTime as UTC to "trick" formatter
+                });
+
+                return `As of ${formatter.format(localTime)} (Local Time)`;
+            }
+
+        });
+    </script>
+</body>
 </html>
