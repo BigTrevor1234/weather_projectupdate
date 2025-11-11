@@ -397,7 +397,7 @@
                     timeZone: 'UTC' // Treat the calculated localTime as UTC to "trick" formatter
                 });
 
-                return `As of ${formatter.format(localTime)} (Local Time)`;
+                return `${formatter.format(localTime)} (Local Time)`;
             }
 
         });
